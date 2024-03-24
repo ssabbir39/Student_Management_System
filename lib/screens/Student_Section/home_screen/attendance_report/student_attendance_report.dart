@@ -1,16 +1,17 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:student_management_system/constants.dart';
-import 'attendance_report.dart';
 
-class AttendanceReport extends StatefulWidget {
-  const AttendanceReport({Key? key}) : super(key: key);
+import 'my_attendance.dart';
+
+class StudentAttendanceReport extends StatefulWidget {
+  const StudentAttendanceReport({Key? key}) : super(key: key);
 
   @override
-  _AttendanceReportState createState() => _AttendanceReportState();
+  _StudentAttendanceReportState createState() => _StudentAttendanceReportState();
 }
 
-class _AttendanceReportState extends State<AttendanceReport> {
+class _StudentAttendanceReportState extends State<StudentAttendanceReport> {
   String? _selectedCourse;
   List<String> _courses = [];
 
@@ -54,12 +55,12 @@ class _AttendanceReportState extends State<AttendanceReport> {
                     setState(() {
                       _selectedCourse = newValue;
                     });
-                    // Navigate to TakeAttendance page when a course is selected
+                    // Navigate to AttendanceSummaryPage when a course is selected
                     if (_selectedCourse != null) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AttendanceSummaryPage(courseName: _selectedCourse!,),
+                          builder: (context) => StudentAttendanceSummaryPage(courseName: _selectedCourse!,),
                         ),
                       );
                     }

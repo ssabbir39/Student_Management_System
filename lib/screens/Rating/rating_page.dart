@@ -77,7 +77,7 @@ class _RatingPageState extends State<RatingPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  saveRatingsToFirestore();
+                  saveRatings();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kPrimaryColor,
@@ -97,7 +97,9 @@ class _RatingPageState extends State<RatingPage> {
     );
   }
 
-  void saveRatingsToFirestore() {
+  void saveRatings() {
+    double averageRating = (behaviourRating + skillRating + lectureRating + markingRating) / 4;
+
     FirebaseFirestore.instance
         .collection('faculty_ratings')
         .doc(widget.facultyId)
@@ -106,13 +108,14 @@ class _RatingPageState extends State<RatingPage> {
       'skillRating': skillRating,
       'lectureRating': lectureRating,
       'markingRating': markingRating,
+      'averageRating': averageRating,
     }).then((_) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
-          'Ratings submitted successfully',
-          style: TextStyle(fontSize: 20),
-        )),
+              'Ratings submitted successfully',
+              style: TextStyle(fontSize: 20),
+            )),
       );
     }).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(

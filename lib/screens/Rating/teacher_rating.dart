@@ -5,6 +5,8 @@ import '../../constants.dart';
 import 'rating_page.dart'; // Import the rating page
 
 class FacultyListPage extends StatelessWidget {
+  const FacultyListPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,10 +134,6 @@ class _FacultyTileState extends State<FacultyTile> {
             Text(
               "Name: ${widget.facultyName}",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              "ID: ${widget.facultyId}",
-              style: TextStyle(fontSize: 14),
             ),
             SizedBox(height: 8),
             Row(

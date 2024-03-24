@@ -86,7 +86,9 @@ class _WallTabState extends State<WallTab> {
                   notificationList[index].dateTime,
                   style: TextStyle(color: Colors.grey,fontSize: 15),
                 ),
-                onTap: () {},
+                onTap: () {
+
+                },
               ),
             );
           },

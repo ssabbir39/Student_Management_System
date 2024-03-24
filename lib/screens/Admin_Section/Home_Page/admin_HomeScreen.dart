@@ -66,26 +66,8 @@ class _AdminPageState extends State<AdminPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            FacultyName(),
-                            kHalfSizeBox,
-                            FacultyDepartment(),
-                            kHalfSizeBox,
-                            FacultyPost(),
-                            kHalfSizeBox,
-                            FacultyYear(),
-                          ],
-                        ),
-                        kHalfSizeBox,
-                        ProfileImagePicker(
-                          onPress: () {},
-                        ),
-                      ],
+                    ProfileImagePicker(
+                      onPress: () {},
                     ),
                   ],
                 ),

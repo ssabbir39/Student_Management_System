@@ -185,15 +185,51 @@ class _TakeAttendanceState extends State<TakeAttendance> {
           .doc(className)
           .collection('Attendance');
 
+      // Get current date
+      DateTime currentDate = DateTime.now();
+
       // Loop through each student's attendance
       await Future.forEach(_attendance.entries, (entry) async {
         String studentUid = entry.key;
         bool present = entry.value;
 
-        // Store attendance data for each student
+        // Get student details
+        DocumentSnapshot studentSnapshot = await FirebaseFirestore.instance
+            .collection('courses')
+            .doc(className)
+            .collection('students')
+            .doc(studentUid)
+            .get();
+        String studentName = studentSnapshot['fullName'];
+        String studentId = studentSnapshot['id'];
+
+        // Get existing attendance data for the current date, if any
+        DocumentSnapshot? existingAttendanceSnapshot = await attendanceRef.doc(studentUid).get();
+        Map<String, dynamic> attendanceData = {
+          'name': studentName,
+          'id': studentId,
+          'present': 0,
+          'absent': 0,
+        };
+
+        if (existingAttendanceSnapshot.exists) {
+          attendanceData = existingAttendanceSnapshot.data() as Map<String, dynamic>;
+        }
+
+        // Update attendance count
+        if (present) {
+          attendanceData['present'] = (attendanceData['present'] ?? 0) + 1;
+        } else {
+          attendanceData['absent'] = (attendanceData['absent'] ?? 0) + 1;
+        }
+
+        // Store attendance data for each student along with date, name, ID, present, and absent counts
         await attendanceRef.doc(studentUid).set({
-          'date': Timestamp.now(),
-          'present': present,
+          'date': currentDate,
+          'name': studentName,
+          'id': studentId,
+          'present': attendanceData['present'],
+          'absent': attendanceData['absent'],
           'uid': studentUid, // Store student UID along with attendance data
         });
       });
@@ -215,4 +251,5 @@ class _TakeAttendanceState extends State<TakeAttendance> {
       );
     }
   }
+
 }

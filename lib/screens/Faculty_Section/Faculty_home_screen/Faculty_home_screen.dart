@@ -11,9 +11,8 @@ import '../../../Repository_and_Authentication/profile_image_picker.dart';
 import '../../../Repository_and_Authentication/services/auth.dart';
 import '../../../animated_route_page.dart';
 import '../../../constants.dart';
-import '../../Attendance_Screen/Attendance_page.dart';
-import '../../Attendance_Screen/Attendance_page.dart';
 import '../../Attendance_Screen/select_courses.dart';
+import '../../Attendance_Screen/Attendance_page.dart';
 import 'Faculty_Profile.dart';
 import '../Faculty_login_screen.dart';
 import 'widgets/admin_data.dart';
@@ -152,32 +151,20 @@ class _FacultyHomeScreenState extends State<FacultyHomeScreen> {
                   icon: 'assets/icons/resume.svg',
                   title: 'Assigned\nCourses',
                 ),
-                HomeCard(
-                  onPress: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>   EditAnnouncement(announcement: account),
-                      ),
-                    );
-                  },
-                  icon: 'assets/icons/logout1.svg',
-                  title: 'Edit\nAnnouncement',
-                ),
+                  HomeCard(
+                    onPress: () {
+                      AuthService().logout();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>  const AdminLoginScreen(),
+                        ),
+                      );
+                    },
+                    icon: 'assets/icons/logout.svg',
+                    title: 'Logout',
+                  ),
               ),
-              HomeCard(
-                onPress: () {
-                  AuthService().logout();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>  const AdminLoginScreen(),
-                    ),
-                  );
-                },
-                icon: 'assets/icons/logout.svg',
-                title: 'Logout',
-              )
             ],
           ),
         ),

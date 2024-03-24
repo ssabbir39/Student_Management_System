@@ -18,6 +18,7 @@ import '../my_profile/my_profile.dart';
 import 'Credit_screen/credit_screen.dart';
 import 'Exam_Screen/exam_routine.dart';
 import 'attendance_report/my_attendance.dart';
+import 'attendance_report/student_attendance_report.dart';
 import 'widgets/student_data.dart';
 
 class StudentHomeScreen extends StatefulWidget {
@@ -88,7 +89,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                         onPress: () {
                           // Go to Attendance Screen
                           Navigator.of(context).push(UniquePageRoute(
-                            builder: (_) => StudentAttendanceReportPage(currentUser: user),
+                            builder: (_) => StudentAttendanceReport(),
                           ));
                         },
                       ),

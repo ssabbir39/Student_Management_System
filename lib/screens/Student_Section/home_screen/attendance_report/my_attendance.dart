@@ -1,62 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
 import 'package:student_management_system/constants.dart';
-import '../../../../Repository_and_Authentication/data/custom_user.dart';
-import '../../../../Repository_and_Authentication/services/accounts_db.dart';
 
-class StudentAttendanceReportPage extends StatefulWidget {
-  final CustomUser currentUser;
+class StudentAttendanceSummaryPage extends StatelessWidget {
+  final String courseName;
 
-  const StudentAttendanceReportPage({Key? key, required this.currentUser}) : super(key: key);
-
-  @override
-  _StudentAttendanceReportPageState createState() => _StudentAttendanceReportPageState();
-}
-
-class _StudentAttendanceReportPageState extends State<StudentAttendanceReportPage> {
-  final AccountsDB _accountsDB = AccountsDB();
-  List<Map<String, dynamic>> attendanceData = [];
-
-  @override
-  void initState() {
-    super.initState();
-    fetchAttendanceData();
-  }
-
-  Future<void> fetchAttendanceData() async {
-    try {
-      List<DocumentSnapshot>? studentCourses = await _accountsDB.getStudentCourses(widget.currentUser.uid); // Fetch student courses
-      if (studentCourses != null) {
-        for (DocumentSnapshot course in studentCourses) {
-          String courseId = course.id;
-          List<DocumentSnapshot>? attendance = await _accountsDB.getAttendanceByStudentAndCourse(courseId, widget.currentUser.uid);
-          if (attendance != null) {
-            for (DocumentSnapshot record in attendance) {
-              DateTime date = record['date'].toDate();
-              bool present = record['present'];
-              String courseName = course['className'];
-              setState(() {
-                attendanceData.add({
-                  'courseName': courseName,
-                  'date': date,
-                  'present': present,
-                });
-              });
-            }
-          }
-        }
-      }
-    } catch (e) {
-      print('Error fetching attendance data: $e');
-    }
-  }
+  const StudentAttendanceSummaryPage({Key? key, required this.courseName}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Attendance Report', style: TextStyle(color: kTextWhiteColor)),
+        title: Text('Attendance Summary',style: TextStyle(color: kTextWhiteColor),),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -66,39 +22,67 @@ class _StudentAttendanceReportPageState extends State<StudentAttendanceReportPag
           ),
           color: kOtherColor,
         ),
-        child: attendanceData.isNotEmpty
-            ? Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(kDefaultPadding),
-              topRight: Radius.circular(kDefaultPadding),
-            ),
-            color: kOtherColor,
-          ),
-          child: ListView.builder(
-            itemCount: attendanceData.length,
-            itemBuilder: (context, index) {
-              String courseName = attendanceData[index]['courseName'];
-              DateTime date = attendanceData[index]['date'];
-              bool present = attendanceData[index]['present'];
-              return ListTile(
-                title: Text('Course: $courseName'),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Date: ${DateFormat('yyyy-MM-dd').format(date)}'),
-                    Text('Status: ${present ? 'Present' : 'Absent'}'),
-                  ],
-                ),
+        child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('courses')
+              .doc(courseName)
+              .collection('Attendance')
+              .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid) // Filter by logged-in student's ID
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
               );
-            },
-          ),
-        )
-            : Center(
-          child: Text(
-            'No attendance found',
-            style: TextStyle(fontSize: 16, color: kPrimaryColor),
-          ),
+            }
+            if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            }
+            final documents = snapshot.data!.docs;
+            if (documents.isEmpty) {
+              return Center(
+                child: Text('No attendance data found for the student.'),
+              );
+            }
+            return ListView.builder(
+              itemCount: documents.length,
+              itemBuilder: (context, index) {
+                final data = documents[index].data() as Map<String, dynamic>;
+                final studentName = data['name'] ?? '';
+                final studentId = data['id'] ?? '';
+                final presentCount = data['present'] ?? 0;
+                final absentCount = data['absent'] ?? 0;
+                final totalClasses = presentCount + absentCount;
+                return Container(
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    title: Text(
+                      studentName,
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,color: kTextWhiteColor),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 4),
+                        Text('ID: $studentId', style: TextStyle(fontSize: 16,color: kTextWhiteColor)),
+                        SizedBox(height: 4),
+                        Text(
+                          'Present: $presentCount | Absent: $absentCount \nTotal Classes: $totalClasses',
+                          style: TextStyle(fontSize: 16,color: kTextWhiteColor),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
     );

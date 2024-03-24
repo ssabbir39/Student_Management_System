@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:path/path.dart';
 import 'package:mime/mime.dart';
+import 'package:student_management_system/Repository_and_Authentication/custom_buttons.dart';
 import 'package:student_management_system/constants.dart';
 import '../../../../Repository_and_Authentication/data/accounts.dart';
 import '../../../../Repository_and_Authentication/data/attachments.dart';
@@ -126,11 +127,11 @@ class _AddAnnouncementState extends State<AddAnnouncement> {
                 child: Column(
                   children: [
                     SizedBox(height: 20.0),
-
                     TextFormField(
+                      style: TextStyle(color: kTextBlackColor,fontSize: 16),
                       decoration: InputDecoration(
                           labelText: "Title",
-                          labelStyle: TextStyle(color: kTextBlackColor),
+                          labelStyle: TextStyle(color: kTextBlackColor,fontSize: 16),
                           border: OutlineInputBorder()),
                       validator: (val) => val!.isEmpty ? 'Enter a title' : null,
                       onChanged: (val) {
@@ -144,7 +145,7 @@ class _AddAnnouncementState extends State<AddAnnouncement> {
                     DropdownButtonFormField(
                       decoration: InputDecoration(
                         labelText: "Type",
-                        labelStyle: TextStyle(color: kTextBlackColor),
+                        labelStyle: TextStyle(color: kTextBlackColor,fontSize: 16),
                         border: OutlineInputBorder(),
                       ),
                       value: type,
@@ -202,6 +203,7 @@ class _AddAnnouncementState extends State<AddAnnouncement> {
                     SizedBox(height: 20.0),
 
                     TextFormField(
+                      style: TextStyle(color: kTextBlackColor,fontSize: 16),
                       decoration: InputDecoration(
                           labelText: "Description",
                           border: OutlineInputBorder()),
@@ -252,53 +254,42 @@ class _AddAnnouncementState extends State<AddAnnouncement> {
                                 ]))),
 
                     SizedBox(height: 20.0),
+                    DefaultButton(
+                        onPress: () async {
+                      if (_formKey.currentState!.validate()) {
+                        await AnnouncementDB(user: user).addAnnouncements(
+                            title,
+                            type,
+                            description,
+                            widget.classRoom.className,
+                            dateTime,
+                            dueDate);
 
-                    // Login  button
-                    ElevatedButton(
-                      child: Text("Done",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: "Roboto",
-                              fontSize: 22)),
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          await AnnouncementDB(user: user).addAnnouncements(
-                              title,
-                              type,
-                              description,
-                              widget.classRoom.className,
-                              dateTime,
-                              dueDate);
+                        for (int i = 0; i < attachments.length; i++) {
+                          String safeURL = attachments[i]
+                              .url
+                              .replaceAll(new RegExp(r'[^\w\s]+'), '');
 
-                          for (int i = 0; i < attachments.length; i++) {
-                            String safeURL = attachments[i]
-                                .url
-                                .replaceAll(new RegExp(r'[^\w\s]+'), '');
-
-                            await AttachmentsDB().createAttachAnnounceDB(
-                                title, attachments[i].url, safeURL);
-                          }
-
-                          if (type == 'Assignment') {
-                            for (int index = 0;
-                                index < widget.classRoom.students.length;
-                                index++) {
-                              await SubmissionDB().addSubmissions(
-                                  widget.classRoom.students[index].uid,
-                                  widget.classRoom.className,
-                                  title);
-                            }
-                          }
-                          await updateAllData();
-
-                          Navigator.of(context).pop();
+                          await AttachmentsDB().createAttachAnnounceDB(
+                              title, attachments[i].url, safeURL);
                         }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kPrimaryColor,
-                        minimumSize: Size(150, 50),
-                      ),
-                    )
+
+                        if (type == 'Assignment') {
+                          for (int index = 0;
+                          index < widget.classRoom.students.length;
+                          index++) {
+                            await SubmissionDB().addSubmissions(
+                                widget.classRoom.students[index].uid,
+                                widget.classRoom.className,
+                                title);
+                          }
+                        }
+                        await updateAllData();
+
+                        Navigator.of(context).pop();
+                      }
+                    },
+                        title: 'DONE')
                   ],
                 ))
           ],

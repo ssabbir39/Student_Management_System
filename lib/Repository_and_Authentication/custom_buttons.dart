@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../constants.dart';
 
-class DefaultButton extends StatelessWidget {
+class CustomButton extends StatelessWidget {
   final VoidCallback onPress;
   final String title;
 
-  const DefaultButton({
+  const CustomButton({
     super.key,
     required this.onPress,
     required this.title,
@@ -38,9 +38,10 @@ class DefaultButton extends StatelessWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context).textTheme.subtitle2!.copyWith(
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
                 fontWeight: FontWeight.w300,
                 fontSize: 18.0,
+                color: kTextWhiteColor,
               ),
             ),
           ],

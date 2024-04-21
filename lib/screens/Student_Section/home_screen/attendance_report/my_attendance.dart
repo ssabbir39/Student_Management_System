@@ -43,7 +43,7 @@ class StudentAttendanceSummaryPage extends StatelessWidget {
             final documents = snapshot.data!.docs;
             if (documents.isEmpty) {
               return Center(
-                child: Text('No attendance data found for the student.'),
+                child: Text('No attendance data found for the student.',style: TextStyle(color: kTextBlackColor,fontSize: 16),),
               );
             }
             return ListView.builder(

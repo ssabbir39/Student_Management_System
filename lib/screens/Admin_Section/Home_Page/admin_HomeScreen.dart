@@ -56,110 +56,118 @@ class _AdminPageState extends State<AdminPage> {
           }
         },
       child: Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height / 2.5,
-                padding: const EdgeInsets.all(kDefaultPadding),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ProfileImagePicker(
-                      onPress: () {},
-                    ),
-                  ],
-                ),
+        body: Column(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height / 2.5,
+              padding: const EdgeInsets.all(kDefaultPadding),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ProfileImagePicker(
+                    onPress: () {},
+                  ),
+                ],
               ),
-              Expanded(
+            ),
+            Expanded(
+              child: Container(
+                color: Colors.transparent,
                 child: Container(
-                  color: Colors.transparent,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      color: kOtherColor,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(kDefaultPadding * 3),
-                        topRight: Radius.circular(kDefaultPadding * 3),
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    color: kOtherColor,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(kDefaultPadding * 3),
+                      topRight: Radius.circular(kDefaultPadding * 3),
+                    ),
+                  ),
+                  child: ListView(
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          HomeCard(
+                            onPress: () {
+                              Navigator.of(context).push(UniquePageRoute(builder: (_) => FacultyListPage()));
+                            },
+                            icon: 'assets/icons/quiz.svg',
+                            title: 'Faculty Report',
+                          ),
+                          HomeCard(
+                            onPress: () {
+                              Navigator.of(context).push(UniquePageRoute(builder: (_) => StudentListPage()));
+
+                            },
+                            icon: 'assets/icons/event.svg',
+                            title: 'Student Report',
+                          ),
+                        ],
                       ),
-                    ),
-                    child: ListView(
-                      physics: const BouncingScrollPhysics(),
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            HomeCard(
-                              onPress: () {
-                                Navigator.of(context).push(UniquePageRoute(builder: (_) => FacultyListPage()));
-                              },
-                              icon: 'assets/icons/quiz.svg',
-                              title: 'Faculty Report',
-                            ),
-                            HomeCard(
-                              onPress: () {
-                                Navigator.of(context).push(UniquePageRoute(builder: (_) => StudentListPage()));
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          HomeCard(
+                            onPress: () {
+                              Navigator.of(context).push(UniquePageRoute(builder: (_) => AddFaculty()));
+                            },
+                            icon: 'assets/icons/resume.svg',
+                            title: 'Add Faculty',
+                          ),
+                          HomeCard(
+                            onPress: () {
+                              Navigator.of(context).push(UniquePageRoute(builder: (_) => AddStudent()));
 
-                              },
-                              icon: 'assets/icons/event.svg',
-                              title: 'Student Report',
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            HomeCard(
-                              onPress: () {
-                                Navigator.of(context).push(UniquePageRoute(builder: (_) => AddFaculty()));
-                              },
-                              icon: 'assets/icons/resume.svg',
-                              title: 'Add Faculty',
-                            ),
-                            HomeCard(
-                              onPress: () {
-                                Navigator.of(context).push(UniquePageRoute(builder: (_) => AddStudent()));
+                            },
+                            icon: 'assets/icons/assignment.svg',
+                            title: 'Add Student',
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          HomeCard(
+                            onPress: () {
+                              Navigator.of(context).push(UniquePageRoute(builder: (_) => UserListPage()));
 
-                              },
-                              icon: 'assets/icons/assignment.svg',
-                              title: 'Add Student',
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            HomeCard(
-                              onPress: () {
-                                Navigator.of(context).push(UniquePageRoute(builder: (_) => UserListPage()));
-
-                              },
-                              icon: 'assets/icons/event.svg',
-                              title: 'Total\nreport',
-                            ),
-                            HomeCard(
-                              onPress: () {
-                                AuthService().logout();
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>  const AdminLoginScreen(),
-                                  ),
-                                );
-                              },
-                              icon: 'assets/icons/logout.svg',
-                              title: 'Logout',
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                            },
+                            icon: 'assets/icons/event.svg',
+                            title: 'Total\nreport',
+                          ),
+                          HomeCard(
+                            onPress: () {},
+                            icon: 'assets/icons/ask.svg',
+                            title: 'Prediction',
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          HomeCard(
+                            onPress: () {
+                              AuthService().logout();
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>  const AdminLoginScreen(),
+                                ),
+                              );
+                            },
+                            icon: 'assets/icons/logout.svg',
+                            title: 'Logout',
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:student_management_system/constants.dart';
 import '../../../Repository_and_Authentication/data/announcements.dart';
+import 'StudentAnnouncement_page.dart';
 
 class WallTab extends StatefulWidget {
   const WallTab({Key? key});
@@ -48,7 +49,7 @@ class _WallTabState extends State<WallTab> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Notifications",style: TextStyle(color: kTextWhiteColor),),
+        title: Text("Notifications", style: TextStyle(color: kTextWhiteColor)),
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
@@ -79,15 +80,27 @@ class _WallTabState extends State<WallTab> {
                     '${notificationList[index].title}\n${notificationList[index].description}',
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: kPrimaryColor),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: kPrimaryColor,
+                    ),
                   ),
                 ),
                 subtitle: Text(
                   notificationList[index].dateTime,
-                  style: TextStyle(color: Colors.grey,fontSize: 15),
+                  style: TextStyle(color: Colors.grey, fontSize: 15),
                 ),
                 onTap: () {
-
+                  // Navigate to announcement details screen/widget
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StudentAnnouncementPage(
+                        announcement: notificationList[index],
+                      ),
+                    ),
+                  );
                 },
               ),
             );

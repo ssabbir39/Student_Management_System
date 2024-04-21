@@ -254,7 +254,7 @@ class _AddAnnouncementState extends State<AddAnnouncement> {
                                 ]))),
 
                     SizedBox(height: 20.0),
-                    DefaultButton(
+                    CustomButton(
                         onPress: () async {
                       if (_formKey.currentState!.validate()) {
                         await AnnouncementDB(user: user).addAnnouncements(

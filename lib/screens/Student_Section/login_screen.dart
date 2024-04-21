@@ -41,7 +41,6 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
         if (_formKey.currentState!.validate()) {
           setState(() => loading = true);
-
           // Logging into the account
           var result = await _auth.loginStudent(emailController, passwordController);
           if (result == null) {
@@ -125,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (documentSnapshot.exists) {
         if (documentSnapshot.get('type') == "student") {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Row(
+            content: const Row(
               children: [
                 Icon(
                   Icons.notifications_active_outlined,
@@ -143,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ],
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: kPrimaryColor,
             behavior: SnackBarBehavior.floating,
             duration: Duration(seconds: 5), // Adjust the duration as needed
             shape: RoundedRectangleBorder(
@@ -273,7 +272,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         sizeBox,
-                        DefaultButton(
+                        CustomButton(
                           onPress: _signIn,
                           title: 'Login',
                         ),
@@ -310,7 +309,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextFormField(
       textAlign: TextAlign.start,
       keyboardType: TextInputType.emailAddress,
-      style: TextStyle(
+      style: const TextStyle(
         color: kTextBlackColor,
         fontSize: 17.0,
         fontWeight: FontWeight.w300,

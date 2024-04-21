@@ -317,7 +317,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                             ),
                           ),
                           sizeBox,
-                          DefaultButton(
+                          CustomButton(
                             onPress: _signIn,
                             title: 'Login',
                           ),

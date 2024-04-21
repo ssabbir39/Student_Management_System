@@ -68,7 +68,7 @@ class _AddStudentState extends State<AddStudent> {
           color: kDefaultIconLightColor,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: DefaultButton(
+            child: CustomButton(
               onPress: () async {
                 if (_formKey.currentState!.validate()) {
                   setState(() => loading = true);

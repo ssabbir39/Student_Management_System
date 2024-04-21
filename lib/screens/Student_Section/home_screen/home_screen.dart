@@ -45,8 +45,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
           setState(() {
             _isLoggedOut = true;
           });
-          // Add a delay to mimic a loading screen
-          //await Future.delayed(Duration(seconds: 1));
           AuthService().logout();
           Navigator.pushReplacement(
             context,
@@ -117,7 +115,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                 color: Colors.transparent,
                 child: Container(
                   width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: kOtherColor,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(kDefaultPadding * 3),
@@ -231,7 +229,7 @@ class HomeCard extends StatelessWidget {
     return InkWell(
       onTap: onPress,
       child: Container(
-        margin: EdgeInsets.only(top: kDefaultPadding / 2),
+        margin: const EdgeInsets.only(top: kDefaultPadding / 2),
         width: MediaQuery.of(context).size.width / 2.5,
         height: MediaQuery.of(context).size.height / 6,
         decoration: BoxDecoration(

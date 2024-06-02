@@ -1,13 +1,14 @@
-import 'dart:typed_data';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:student_management_system/constants.dart';
+import 'package:pdf/widgets.dart' as pw;
+import '../../Repository_and_Authentication/services/accounts_db.dart';
 
 class TakeAttendance extends StatefulWidget {
-  final String courseName;
+  final String courseName; // Add courseName parameter
   const TakeAttendance({Key? key, required this.courseName}) : super(key: key);
 
   @override
@@ -15,8 +16,10 @@ class TakeAttendance extends StatefulWidget {
 }
 
 class _TakeAttendanceState extends State<TakeAttendance> {
+  AccountsDB _accountsDB = AccountsDB();
   List<DocumentSnapshot>? _students = [];
   Map<String, bool> _attendance = {};
+  Map<String, bool> _attendance2 = {};
   bool loading = false;
 
   @override
@@ -26,27 +29,28 @@ class _TakeAttendanceState extends State<TakeAttendance> {
   }
 
   void _fetchStudents() {
-    setState(() => loading = true);
+    setState(() => loading = true); // Move loading state update before fetching data
     if (widget.courseName != null) {
+      // Use widget.courseName instead of _selectedCourse
       FirebaseFirestore.instance
           .collection('courses')
-          .doc(widget.courseName)
+          .doc(widget.courseName) // Use widget.courseName instead of _selectedCourse
           .collection('students')
           .get()
           .then((querySnapshot) {
         setState(() {
           _students = querySnapshot.docs;
-          loading = false;
+          loading = false; // Update loading state after fetching data
         });
       }).catchError((error) {
         print('Error fetching students: $error');
         setState(() {
           _students = [];
-          loading = false;
+          loading = false; // Update loading state in case of error
         });
       });
     } else {
-      setState(() => loading = false);
+      setState(() => loading = false); // Update loading state if no course is selected
     }
   }
 
@@ -63,11 +67,24 @@ class _TakeAttendanceState extends State<TakeAttendance> {
             color: Colors.white,
           ),
         ),
-        title: const Text(
-          'Student Attendance',
-          style: TextStyle(
-            color: Colors.white,
-          ),
+        title:  Row(
+          children: [
+            Text(
+              'Student Attendance',
+              style: TextStyle(
+                color: kTextWhiteColor,
+              ),
+            ),
+            Spacer(),
+            IconButton(onPressed: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ReportDownload(docid: widget.courseName, attendanceData: _attendance2),
+                ),
+              );
+            }, icon: Icon(Icons.download_for_offline_outlined),color: kTextWhiteColor,)
+          ],
         ),
       ),
       body: loading
@@ -78,42 +95,45 @@ class _TakeAttendanceState extends State<TakeAttendance> {
           ? Container(
         decoration: const BoxDecoration(
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16),
+            topLeft: Radius.circular(kDefaultPadding),
+            topRight: Radius.circular(kDefaultPadding),
           ),
-          color: Colors.grey,
+          color: kOtherColor,
         ),
         child: ListView.builder(
           itemCount: _students!.length,
           itemBuilder: (context, index) {
             String fullName = _students![index]['fullName'] ?? '';
             String email = _students![index]['email'] ?? '';
+            String studentUid = _students![index].id; // Updated to get document ID
             String studentId = _students![index]['id'] ?? '';
-            bool isPresent = _attendance[studentId] ?? false;
+            bool isPresent = _attendance[studentUid] ?? false; // Use studentUid for attendance
             return Container(
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: kPrimaryColor,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ListTile(
                 title: Text(
-                  '$fullName (ID: $studentId)',
+                  fullName,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
+                    color: kTextWhiteColor,
                   ),
                 ),
                 subtitle: Text(
-                  'Email: $email',
-                  style: const TextStyle(fontSize: 14),
+                  'ID: $studentId\nEmail: $email',
+                  style: const TextStyle(fontSize: 14, color: kTextWhiteColor),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     GestureDetector(
                       onTap: () {
-                        _toggleAttendance(studentId, true);
+                        _toggleAttendance(studentUid, true);
+                        //_toggleAttendance2(studentId, true);
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),
@@ -132,7 +152,7 @@ class _TakeAttendanceState extends State<TakeAttendance> {
                     const SizedBox(width: 10),
                     GestureDetector(
                       onTap: () {
-                        _toggleAttendance(studentId, false);
+                        _toggleAttendance(studentUid, false); // Use studentUid
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),
@@ -161,12 +181,6 @@ class _TakeAttendanceState extends State<TakeAttendance> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           submitAllAttendance(widget.courseName);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ReportDownload(docid: widget.courseName, attendanceData: _attendance),
-            ),
-          );
         },
         label: const Text('Submit Attendance'),
         icon: const Icon(Icons.save),
@@ -175,35 +189,40 @@ class _TakeAttendanceState extends State<TakeAttendance> {
     );
   }
 
-  void _toggleAttendance(String studentId, bool present) {
+  void _toggleAttendance(String studentUid, bool present) {
     setState(() {
-      _attendance[studentId] = present;
+      _attendance[studentUid] = present;
     });
   }
 
   Future<void> submitAllAttendance(String className) async {
     try {
+      // Get the collection reference for the attendance of the specific course
       CollectionReference attendanceRef = FirebaseFirestore.instance
           .collection('courses')
           .doc(className)
           .collection('Attendance');
 
+      // Get current date
       DateTime currentDate = DateTime.now();
 
+      // Loop through each student's attendance
       await Future.forEach(_attendance.entries, (entry) async {
-        String studentId = entry.key;
+        String studentUid = entry.key;
         bool present = entry.value;
 
+        // Get student details
         DocumentSnapshot studentSnapshot = await FirebaseFirestore.instance
             .collection('courses')
             .doc(className)
             .collection('students')
-            .doc(studentId)
+            .doc(studentUid)
             .get();
         String studentName = studentSnapshot['fullName'];
-        // String studentId = studentSnapshot['id'];
+        String studentId = studentSnapshot['id'];
 
-        DocumentSnapshot? existingAttendanceSnapshot = await attendanceRef.doc(studentId).get();
+        // Get existing attendance data for the current date, if any
+        DocumentSnapshot? existingAttendanceSnapshot = await attendanceRef.doc(studentUid).get();
         Map<String, dynamic> attendanceData = {
           'name': studentName,
           'id': studentId,
@@ -215,28 +234,32 @@ class _TakeAttendanceState extends State<TakeAttendance> {
           attendanceData = existingAttendanceSnapshot.data() as Map<String, dynamic>;
         }
 
+        // Update attendance count
         if (present) {
           attendanceData['present'] = (attendanceData['present'] ?? 0) + 1;
         } else {
           attendanceData['absent'] = (attendanceData['absent'] ?? 0) + 1;
         }
 
-        await attendanceRef.doc(studentId).set({
+        // Store attendance data for each student along with date, name, ID, present, and absent counts
+        await attendanceRef.doc(studentUid).set({
           'date': currentDate,
           'name': studentName,
           'id': studentId,
           'present': attendanceData['present'],
           'absent': attendanceData['absent'],
-          'uid': studentId,
+          'uid': studentUid, // Store student UID along with attendance data
         });
       });
 
+      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Attendance submitted successfully'),
         ),
       );
     } catch (e) {
+      // Handle errors
       print('Error submitting attendance: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -246,6 +269,7 @@ class _TakeAttendanceState extends State<TakeAttendance> {
       );
     }
   }
+
 }
 
 class ReportDownload extends StatefulWidget {

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:student_management_system/constants.dart';
@@ -13,6 +14,7 @@ class StudentListPage extends StatefulWidget {
 
 class _StudentListPageState extends State<StudentListPage> {
   late Future<List<DocumentSnapshot>> studentsFuture;
+  String totalStudent = '0';
 
   @override
   void initState() {
@@ -38,7 +40,7 @@ class _StudentListPageState extends State<StudentListPage> {
           },
           child: const Icon(Icons.arrow_back_ios, color: Colors.white),
         ),
-        title: const Text("Student List",style: TextStyle(color: kTextWhiteColor),),
+        title: const Text("Student Report",style: TextStyle(color: kTextWhiteColor),),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -57,15 +59,38 @@ class _StudentListPageState extends State<StudentListPage> {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else {
               List<DocumentSnapshot>? students = snapshot.data;
-              return ListView.builder(
-                itemCount: students!.length,
-                itemBuilder: (context, index) {
-                  Map<String, dynamic> userData =
-                  students[index].data() as Map<String, dynamic>;
-                  String fullName = userData['fullName'] ?? '';
-                  String email = userData['email'] ?? '';
-                  return _buildUserTile(fullName, email);
-                },
+              totalStudent = students!.length.toString();
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10,right: 10),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: Container(
+                          alignment: Alignment.topRight,
+                          width: 50,
+                          height: 25,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: kPrimaryColor,
+                          ),
+                          child: Center(child: Text(totalStudent,style: TextStyle(fontSize: 16,color: kTextWhiteColor),))),
+                    ),
+                  ),
+                  SizedBox(height: 10,),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: students!.length,
+                      itemBuilder: (context, index) {
+                        Map<String, dynamic> userData =
+                        students[index].data() as Map<String, dynamic>;
+                        String fullName = userData['fullName'] ?? '';
+                        String email = userData['email'] ?? '';
+                        return _buildUserTile(fullName, email);
+                      },
+                    ),
+                  ),
+                ],
               );
             }
           },

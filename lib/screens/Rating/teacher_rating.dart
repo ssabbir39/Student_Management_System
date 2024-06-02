@@ -1,24 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart'; // Import CircularPercentIndicator
+import 'package:flutter/widgets.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import '../../constants.dart';
-import 'rating_page.dart'; // Import the rating page
+import 'rating_page.dart';
 
-class FacultyListPage extends StatelessWidget {
-  const FacultyListPage({super.key});
+class FacultyListPage extends StatefulWidget {
+  const FacultyListPage({Key? key}) : super(key: key);
+
+  @override
+  State<FacultyListPage> createState() => _FacultyListPageState();
+}
+
+class _FacultyListPageState extends State<FacultyListPage> {
+  String totalFaculty = '0';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: TextButton(onPressed: () {
-          Navigator.pop(context);
-        },
-        child: Icon(Icons.arrow_back_ios,color: kTextWhiteColor,)),
-        title: const Text('Faculty List', style: TextStyle(color: kTextWhiteColor),),
+        leading: TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Icon(
+            Icons.arrow_back_ios,
+            color: kTextWhiteColor,
+          ),
+        ),
+        title: Text(
+          'Faculty Report',
+          style: TextStyle(color: kTextWhiteColor),
+        ),
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(kDefaultPadding),
             topRight: Radius.circular(kDefaultPadding),
@@ -26,7 +42,10 @@ class FacultyListPage extends StatelessWidget {
           color: kOtherColor,
         ),
         child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('users').where('type', isEqualTo: 'faculty').snapshots(),
+          stream: FirebaseFirestore.instance
+              .collection('users')
+              .where('type', isEqualTo: 'faculty')
+              .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Center(
@@ -41,23 +60,48 @@ class FacultyListPage extends StatelessWidget {
             }
 
             List<DocumentSnapshot> facultyDocuments = snapshot.data!.docs;
-            return ListView.builder(
-              itemCount: facultyDocuments.length,
-              itemBuilder: (context, index) {
-                var facultyData = facultyDocuments[index].data() as Map<String, dynamic>;
-                return FacultyTile(
-                  facultyId: facultyDocuments[index].id,
-                  facultyName: facultyData['fullName'],
-                  facultyUid: facultyData['uid'],
-                  onTap: () {
-                    // Navigate to the rating page when faculty tile is tapped
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => RatingPage(facultyId: facultyData['uid'])),
-                    );
-                  },
-                );
-              },
+            totalFaculty = facultyDocuments.length.toString();
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 10,right: 10),
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: Container(
+                      alignment: Alignment.topRight,
+                      width: 50,
+                        height: 25,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: kPrimaryColor,
+                        ),
+                        child: Center(child: Text(totalFaculty,style: TextStyle(fontSize: 16,color: kTextWhiteColor),))),
+                  ),
+                ),
+                SizedBox(height: 20), // Add some space between app bar and list
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: facultyDocuments.length,
+                    itemBuilder: (context, index) {
+                      var facultyData =
+                      facultyDocuments[index].data() as Map<String, dynamic>;
+                      return FacultyTile(
+                        facultyId: facultyDocuments[index].id,
+                        facultyName: facultyData['fullName'],
+                        facultyUid: facultyData['uid'],
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RatingPage(facultyId: facultyData['uid']),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
             );
           },
         ),
@@ -93,19 +137,16 @@ class _FacultyTileState extends State<FacultyTile> {
   @override
   void initState() {
     super.initState();
-    // Fetch ratings from Firestore
     fetchRatings();
   }
 
   void fetchRatings() async {
     try {
-      // Fetch the ratings for the specific faculty member
       DocumentSnapshot ratingSnapshot = await FirebaseFirestore.instance
           .collection('faculty_ratings')
           .doc(widget.facultyUid)
           .get();
       setState(() {
-        // Update the state variables with the fetched ratings
         behaviourRating = ratingSnapshot['behaviourRating'] ?? 0.0;
         skillRating = ratingSnapshot['skillRating'] ?? 0.0;
         lectureRating = ratingSnapshot['lectureRating'] ?? 0.0;
@@ -124,7 +165,7 @@ class _FacultyTileState extends State<FacultyTile> {
         padding: EdgeInsets.all(16),
         margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         decoration: BoxDecoration(
-          color: kPrimaryColor, // You can change the color as needed
+          color: kPrimaryColor,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
@@ -149,11 +190,14 @@ class _FacultyTileState extends State<FacultyTile> {
                         "${(behaviourRating * 100).toInt()}%",
                         style: TextStyle(fontSize: 14),
                       ),
-                      progressColor: Colors.green, // Change the color as needed
+                      progressColor: Colors.green,
                       backgroundColor: Colors.grey,
                     ),
                     kHalfSizeBox,
-                    const Text("Behaviour",style: TextStyle(fontSize: 16),)
+                    const Text(
+                      "Behaviour",
+                      style: TextStyle(fontSize: 16),
+                    )
                   ],
                 ),
                 Column(
@@ -166,11 +210,14 @@ class _FacultyTileState extends State<FacultyTile> {
                         "${(skillRating * 100).toInt()}%",
                         style: TextStyle(fontSize: 14),
                       ),
-                      progressColor: Colors.green, // Change the color as needed
+                      progressColor: Colors.green,
                       backgroundColor: Colors.grey,
                     ),
                     kHalfSizeBox,
-                    const Text("Skills",style: TextStyle(fontSize: 16),)
+                    const Text(
+                      "Skills",
+                      style: TextStyle(fontSize: 16),
+                    )
                   ],
                 ),
                 Column(
@@ -183,11 +230,14 @@ class _FacultyTileState extends State<FacultyTile> {
                         "${(lectureRating * 100).toInt()}%",
                         style: TextStyle(fontSize: 14),
                       ),
-                      progressColor: Colors.green, // Change the color as needed
+                      progressColor: Colors.green,
                       backgroundColor: Colors.grey,
                     ),
                     kHalfSizeBox,
-                    const Text("Lecture",style: TextStyle(fontSize: 16),)
+                    const Text(
+                      "Lecture",
+                      style: TextStyle(fontSize: 16),
+                    )
                   ],
                 ),
                 Column(
@@ -200,11 +250,14 @@ class _FacultyTileState extends State<FacultyTile> {
                         "${(markingRating * 100).toInt()}%",
                         style: TextStyle(fontSize: 14),
                       ),
-                      progressColor: Colors.green, // Change the color as needed
+                      progressColor: Colors.green,
                       backgroundColor: Colors.grey,
                     ),
                     kHalfSizeBox,
-                    const Text("Marking",style: TextStyle(fontSize: 16),)
+                    const Text(
+                      "Marking",
+                      style: TextStyle(fontSize: 16),
+                    )
                   ],
                 ),
               ],

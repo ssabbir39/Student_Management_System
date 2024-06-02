@@ -153,7 +153,6 @@ class _FacultyHomeScreenState extends State<FacultyHomeScreen> {
                 ),
                   HomeCard(
                     onPress: () {
-                      AuthService().logout();
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(

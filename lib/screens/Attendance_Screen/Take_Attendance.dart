@@ -132,7 +132,7 @@ class _TakeAttendanceState extends State<TakeAttendance> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        _toggleAttendance(studentUid, true);
+                        _toggleAttendance(studentUid, true,studentId);
                         //_toggleAttendance2(studentId, true);
                       },
                       child: Container(
@@ -152,7 +152,7 @@ class _TakeAttendanceState extends State<TakeAttendance> {
                     const SizedBox(width: 10),
                     GestureDetector(
                       onTap: () {
-                        _toggleAttendance(studentUid, false); // Use studentUid
+                        _toggleAttendance(studentUid, false,studentId); // Use studentUid
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),
@@ -189,9 +189,10 @@ class _TakeAttendanceState extends State<TakeAttendance> {
     );
   }
 
-  void _toggleAttendance(String studentUid, bool present) {
+  void _toggleAttendance(String studentUid, bool present,String studentId) {
     setState(() {
       _attendance[studentUid] = present;
+      _attendance2[studentId] = present;
     });
   }
 

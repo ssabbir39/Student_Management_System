@@ -138,6 +138,16 @@ class _AdminPageState extends State<AdminPage> {
                             title: 'Total\nreport',
                           ),
                           HomeCard(
+                            onPress: () {},
+                            icon: 'assets/icons/result.svg',
+                            title: 'Prediction',
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          HomeCard(
                             onPress: () {
                               AuthService().logout();
                               Navigator.pushReplacement(

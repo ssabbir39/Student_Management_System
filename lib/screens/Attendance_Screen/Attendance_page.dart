@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:student_management_system/constants.dart';
 import 'Take_Attendance.dart';
@@ -13,11 +14,20 @@ class AttendancePage extends StatefulWidget {
 class _AttendancePageState extends State<AttendancePage> {
   String? _selectedCourse;
   List<String> _courses = [];
+  String? _currentUserId;
 
   @override
   void initState() {
     super.initState();
-    _fetchCourses();
+    _fetchCurrentUser();
+  }
+
+  void _fetchCurrentUser() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      _currentUserId = user.uid;
+      _fetchCourses();
+    }
   }
 
   @override
@@ -87,9 +97,11 @@ class _AttendancePageState extends State<AttendancePage> {
     );
   }
 
+
   void _fetchCourses() {
     FirebaseFirestore.instance
         .collection('courses')
+        .where('creator', isEqualTo: _currentUserId)
         .get()
         .then((querySnapshot) {
       setState(() {
